@@ -2,8 +2,9 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+# 复制 lockfile，使用 npm ci 确保依赖版本锁定
+COPY package.json package-lock.json ./
+RUN npm ci --prefer-offline
 
 COPY . .
 RUN npm run build
