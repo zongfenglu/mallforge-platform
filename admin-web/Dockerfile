@@ -1,15 +1,14 @@
 # Multi-stage build for Nuxt 3 admin frontend
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 
-# 复制 lockfile，使用 npm ci 确保依赖版本锁定
-COPY package.json package-lock.json ./
-RUN npm ci --prefer-offline
+COPY package.json ./
+RUN npm install --no-audit --no-fund
 
 COPY . .
 RUN npm run build
 
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 WORKDIR /app
 
 RUN addgroup -S mall && adduser -S mall -G mall
