@@ -1,3 +1,7 @@
+# 禁用 BuildKit provenance（避免 "resolving provenance" 卡死问题）
+x-build-no-provenance: &no-provenance
+  provenance: false
+
 version: '3.8'
 
 services:
@@ -38,6 +42,7 @@ services:
     build:
       context: ./server
       dockerfile: mall-gateway/Dockerfile
+      provenance: false
     container_name: mallforge-gateway
     restart: unless-stopped
     ports:
@@ -55,6 +60,7 @@ services:
     build:
       context: ./server
       dockerfile: mall-system/Dockerfile
+      provenance: false
     container_name: mallforge-system
     restart: unless-stopped
     ports:
@@ -81,6 +87,7 @@ services:
     build:
       context: ./server
       dockerfile: mall-product/Dockerfile
+      provenance: false
     container_name: mallforge-product
     restart: unless-stopped
     ports:
@@ -104,6 +111,7 @@ services:
     build:
       context: ./server
       dockerfile: mall-order/Dockerfile
+      provenance: false
     container_name: mallforge-order
     restart: unless-stopped
     ports:
@@ -127,6 +135,7 @@ services:
     build:
       context: ./server
       dockerfile: mall-marketing/Dockerfile
+      provenance: false
     container_name: mallforge-marketing
     restart: unless-stopped
     ports:
@@ -150,6 +159,7 @@ services:
     build:
       context: ./server
       dockerfile: mall-payment/Dockerfile
+      provenance: false
     container_name: mallforge-payment
     restart: unless-stopped
     ports:
@@ -172,6 +182,7 @@ services:
     build:
       context: ./admin-web
       dockerfile: Dockerfile
+      provenance: false
     container_name: mallforge-admin
     restart: unless-stopped
     ports:
@@ -196,3 +207,5 @@ services:
 volumes:
   mysql_data:
   redis_data:
+
+# 在文件末尾已有 volumes，无需重复添加
