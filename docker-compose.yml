@@ -1,0 +1,191 @@
+version: '3.8'
+
+# MallForge Platform - Docker Compose
+# 一键启动所有服务
+
+services:
+
+  # ── 基础设施 ──────────────────────────────────────────────────
+
+  mysql:
+    image: mysql:8.0
+    container_name: mallforge-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mallforge123}
+      MYSQL_DATABASE: mallforge
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: mallforge-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-mallforge123}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+
+  # ── 后端服务 ──────────────────────────────────────────────────
+
+  mall-gateway:
+    build:
+      context: ./server/mall-gateway
+      dockerfile: Dockerfile
+    container_name: mallforge-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-mallforge-super-secret-key-must-be-32-chars-minimum}
+    depends_on:
+      - mall-system
+      - mall-product
+      - mall-order
+      - mall-marketing
+      - mall-payment
+
+  mall-system:
+    build:
+      context: ./server/mall-system
+      dockerfile: Dockerfile
+    container_name: mallforge-system
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-mallforge123}
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-mallforge123}
+      - MALL_JWT_SECRET=${JWT_SECRET:-mallforge-super-secret-key-must-be-32-chars-minimum}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mall-product:
+    build:
+      context: ./server/mall-product
+      dockerfile: Dockerfile
+    container_name: mallforge-product
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-mallforge123}
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-mallforge123}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mall-order:
+    build:
+      context: ./server/mall-order
+      dockerfile: Dockerfile
+    container_name: mallforge-order
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-mallforge123}
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-mallforge123}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mall-marketing:
+    build:
+      context: ./server/mall-marketing
+      dockerfile: Dockerfile
+    container_name: mallforge-marketing
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-mallforge123}
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-mallforge123}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mall-payment:
+    build:
+      context: ./server/mall-payment
+      dockerfile: Dockerfile
+    container_name: mallforge-payment
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-mallforge123}
+      - MALL_PAYMENT_AES_KEY=${PAYMENT_AES_KEY:-mallforge-payment-aes-key-16byte}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ── 前端 ──────────────────────────────────────────────────────
+
+  admin-web:
+    build:
+      context: ./admin-web
+      dockerfile: Dockerfile
+    container_name: mallforge-admin
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NUXT_PUBLIC_API_BASE=http://mall-gateway:8080
+    depends_on:
+      - mall-gateway
+
+  # ── 反向代理 ──────────────────────────────────────────────────
+
+  nginx:
+    image: nginx:alpine
+    container_name: mallforge-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/certs:/etc/nginx/certs:ro
+    depends_on:
+      - mall-gateway
+      - admin-web
+
+volumes:
+  mysql_data:
+  redis_data:

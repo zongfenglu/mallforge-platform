@@ -1,0 +1,80 @@
+/* MallForge Admin - Design Tokens & Global Styles */
+
+:root {
+  /* ── Brand Colors ─────────────────────────────────── */
+  --mf-primary:       #6C3AFA;
+  --mf-primary-light: #8B5CF6;
+  --mf-primary-dark:  #4C1D95;
+  --mf-accent:        #06B6D4;
+  --mf-success:       #10B981;
+  --mf-warning:       #F59E0B;
+  --mf-danger:        #EF4444;
+
+  /* ── Sidebar ──────────────────────────────────────── */
+  --mf-sidebar-bg:    linear-gradient(180deg, #1E1B4B 0%, #312E81 100%);
+  --mf-sidebar-width: 260px;
+  --mf-sidebar-text:  rgba(255,255,255,0.75);
+  --mf-sidebar-active: rgba(255,255,255,0.15);
+
+  /* ── Topbar ───────────────────────────────────────── */
+  --mf-topbar-h: 64px;
+  --mf-topbar-bg: rgba(255,255,255,0.85);
+  --mf-topbar-blur: blur(12px);
+
+  /* ── Surface ──────────────────────────────────────── */
+  --mf-bg-page:  #F3F4F6;
+  --mf-bg-card:  #FFFFFF;
+  --mf-radius:   12px;
+  --mf-shadow:   0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+
+  /* ── Typography ───────────────────────────────────── */
+  --mf-text-primary:   #111827;
+  --mf-text-secondary: #6B7280;
+  --mf-text-muted:     #9CA3AF;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--mf-bg-page);
+  color: var(--mf-text-primary);
+  margin: 0;
+}
+
+/* 卡片基础样式 */
+.mf-card {
+  background: var(--mf-bg-card);
+  border-radius: var(--mf-radius);
+  box-shadow: var(--mf-shadow);
+  padding: 24px;
+}
+
+/* 页面标题区 */
+.mf-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.mf-page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--mf-text-primary);
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+/* Element Plus 覆盖 */
+.el-button--primary {
+  background: var(--mf-primary) !important;
+  border-color: var(--mf-primary) !important;
+}
+.el-button--primary:hover {
+  background: var(--mf-primary-light) !important;
+  border-color: var(--mf-primary-light) !important;
+}

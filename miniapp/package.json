@@ -1,0 +1,16 @@
+{
+  "name": "mallforge-miniapp",
+  "version": "1.0.0",
+  "scripts": {
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:mp-weixin": "uni build -p mp-weixin"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "^3.0.0",
+    "pinia": "^2.1.7",
+    "@pinia/nuxt": "^0.5.1"
+  },
+  "devDependencies": {
+    "@dcloudio/uni-ui": "^1.4.27"
+  }
+}

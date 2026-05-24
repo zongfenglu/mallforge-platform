@@ -1,0 +1,46 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: mall-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: mall-system
+          uri: http://mall-system:8081
+          predicates:
+            - Path=/api/v1/auth/**, /api/v1/users/**, /api/v1/tenants/**, /api/v1/roles/**
+        - id: mall-product
+          uri: http://mall-product:8082
+          predicates:
+            - Path=/api/v1/products/**, /api/v1/categories/**, /api/v1/skus/**
+        - id: mall-order
+          uri: http://mall-order:8083
+          predicates:
+            - Path=/api/v1/orders/**, /api/v1/logistics/**, /api/v1/ship-addresses/**
+        - id: mall-marketing
+          uri: http://mall-marketing:8084
+          predicates:
+            - Path=/api/v1/coupons/**, /api/v1/activities/**
+        - id: mall-payment
+          uri: http://mall-payment:8085
+          predicates:
+            - Path=/api/v1/payment/**
+        - id: mall-decorator
+          uri: http://mall-system:8081
+          predicates:
+            - Path=/api/v1/pages/**, /api/v1/dashboard
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+
+mall:
+  jwt:
+    secret: ${JWT_SECRET:mallforge-super-secret-key-must-be-32-chars-minimum}
+    expiration: 86400
+    refresh-expiration: 604800

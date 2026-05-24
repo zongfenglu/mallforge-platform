@@ -1,0 +1,34 @@
+{
+  "name": "mallforge-admin",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "nuxt": "^3.12.0",
+    "vue": "^3.4.0",
+    "@element-plus/nuxt": "^1.0.8",
+    "element-plus": "^2.7.3",
+    "pinia": "^2.1.7",
+    "@pinia/nuxt": "^0.5.1",
+    "axios": "^1.7.2",
+    "@vueuse/nuxt": "^10.10.0",
+    "@vueuse/core": "^10.10.0",
+    "echarts": "^5.5.0",
+    "vue-echarts": "^7.0.3",
+    "sortablejs": "^1.15.2",
+    "dayjs": "^1.11.11"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.12.0",
+    "@nuxt/eslint": "^0.3.13",
+    "vitest": "^1.6.0",
+    "@vitejs/plugin-vue": "^5.0.4"
+  }
+}
