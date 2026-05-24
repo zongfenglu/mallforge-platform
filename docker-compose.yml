@@ -1,11 +1,6 @@
 version: '3.8'
 
-# MallForge Platform - Docker Compose
-# 一键启动所有服务
-
 services:
-
-  # ── 基础设施 ──────────────────────────────────────────────────
 
   mysql:
     image: mysql:8.0
@@ -39,18 +34,16 @@ services:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
 
-  # ── 后端服务 ──────────────────────────────────────────────────
-
   mall-gateway:
     build:
-      context: ./server/mall-gateway
-      dockerfile: Dockerfile
+      context: ./server
+      dockerfile: mall-gateway/Dockerfile
     container_name: mallforge-gateway
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      - JWT_SECRET=${JWT_SECRET:-mallforge-super-secret-key-must-be-32-chars-minimum}
+      - MALL_JWT_SECRET=${JWT_SECRET:-mallforge-super-secret-key-must-be-32-chars-minimum}
     depends_on:
       - mall-system
       - mall-product
@@ -60,14 +53,14 @@ services:
 
   mall-system:
     build:
-      context: ./server/mall-system
-      dockerfile: Dockerfile
+      context: ./server
+      dockerfile: mall-system/Dockerfile
     container_name: mallforge-system
     restart: unless-stopped
     ports:
       - "8081:8081"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-mallforge123}
       - SPRING_REDIS_HOST=redis
@@ -79,21 +72,21 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
 
   mall-product:
     build:
-      context: ./server/mall-product
-      dockerfile: Dockerfile
+      context: ./server
+      dockerfile: mall-product/Dockerfile
     container_name: mallforge-product
     restart: unless-stopped
     ports:
       - "8082:8082"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-mallforge123}
       - SPRING_REDIS_HOST=redis
@@ -101,17 +94,22 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   mall-order:
     build:
-      context: ./server/mall-order
-      dockerfile: Dockerfile
+      context: ./server
+      dockerfile: mall-order/Dockerfile
     container_name: mallforge-order
     restart: unless-stopped
     ports:
       - "8083:8083"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-mallforge123}
       - SPRING_REDIS_HOST=redis
@@ -119,17 +117,22 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   mall-marketing:
     build:
-      context: ./server/mall-marketing
-      dockerfile: Dockerfile
+      context: ./server
+      dockerfile: mall-marketing/Dockerfile
     container_name: mallforge-marketing
     restart: unless-stopped
     ports:
       - "8084:8084"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-mallforge123}
       - SPRING_REDIS_HOST=redis
@@ -137,25 +140,33 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   mall-payment:
     build:
-      context: ./server/mall-payment
-      dockerfile: Dockerfile
+      context: ./server
+      dockerfile: mall-payment/Dockerfile
     container_name: mallforge-payment
     restart: unless-stopped
     ports:
       - "8085:8085"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mallforge?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-mallforge123}
       - MALL_PAYMENT_AES_KEY=${PAYMENT_AES_KEY:-mallforge-payment-aes-key-16byte}
     depends_on:
       mysql:
         condition: service_healthy
-
-  # ── 前端 ──────────────────────────────────────────────────────
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   admin-web:
     build:
@@ -170,18 +181,14 @@ services:
     depends_on:
       - mall-gateway
 
-  # ── 反向代理 ──────────────────────────────────────────────────
-
   nginx:
     image: nginx:alpine
     container_name: mallforge-nginx
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./docker/certs:/etc/nginx/certs:ro
     depends_on:
       - mall-gateway
       - admin-web
