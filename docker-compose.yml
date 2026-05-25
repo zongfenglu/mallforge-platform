@@ -16,7 +16,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - /var/lib/mallforge-mysql:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
@@ -33,7 +33,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - /var/lib/mallforge-redis:/data
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -204,5 +204,6 @@ services:
       - mall-gateway
       - admin-web
 
-
-# 在文件末尾已有 volumes，无需重复添加
+volumes:
+  mysql_data:
+  redis_data:
