@@ -1,4 +1,4 @@
-FROM maven:3.9-eclipse-temurin-17-alpine AS build
+FROM docker.m.daocloud.io/maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /build
 
 COPY pom.xml ./
@@ -13,7 +13,7 @@ COPY mall-payment/    ./mall-payment/
 
 RUN mvn install -pl mall-common,mall-framework -am -DskipTests -q &&     mvn package -pl mall-gateway -DskipTests -q
 
-FROM openjdk:17-alpine
+FROM docker.m.daocloud.io/eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 RUN addgroup -S mall && adduser -S mall -G mall
