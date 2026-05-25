@@ -1,4 +1,4 @@
-FROM maven:3.9-eclipse-temurin-17-alpine AS build
+FROM registry.cn-hangzhou.aliyuncs.com/library/maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /build
 
 # 复制父 pom 和全部子模块（父 pom 声明了所有模块，缺一不可）
@@ -15,7 +15,7 @@ COPY mall-payment/    ./mall-payment/
 # 先安装公共模块，再只打包目标模块
 RUN mvn install -pl mall-common,mall-framework -am -DskipTests -q &&     mvn package -pl mall-product -DskipTests -q
 
-FROM eclipse-temurin:17-jre-alpine
+FROM registry.cn-hangzhou.aliyuncs.com/library/eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 RUN addgroup -S mall && adduser -S mall -G mall
