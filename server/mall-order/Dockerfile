@@ -1,4 +1,4 @@
-FROM registry.cn-hangzhou.aliyuncs.com/library/maven:3.9-eclipse-temurin-17-alpine AS build
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /build
 
 COPY pom.xml ./
@@ -13,7 +13,7 @@ COPY mall-payment/    ./mall-payment/
 
 RUN mvn install -pl mall-common,mall-framework -am -DskipTests -q &&     mvn package -pl mall-order -DskipTests -q
 
-FROM registry.cn-hangzhou.aliyuncs.com/library/openjdk:17-jdk-alpine
+FROM openjdk:17-alpine
 WORKDIR /app
 
 RUN addgroup -S mall && adduser -S mall -G mall
