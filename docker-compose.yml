@@ -188,7 +188,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NUXT_PUBLIC_API_BASE=http://mall-gateway:8080
+      - NUXT_PUBLIC_API_BASE=
     depends_on:
       - mall-gateway
 
