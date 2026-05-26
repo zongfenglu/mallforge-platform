@@ -367,11 +367,11 @@ VALUES (1, 'Demo 商户', '管理员', 'admin@mallforge.com', 1);
 
 -- 超级管理员（tenant_id=NULL）密码: Admin@123 (bcrypt)
 INSERT INTO `user` (tenant_id, username, password_hash, real_name, status)
-VALUES (NULL, 'superadmin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '超级管理员', 1);
+VALUES (NULL, 'superadmin', '$2a$10$.BMHqZAmVBLSQIkKQ9iHYOXK/Seg2WnbvmZCgDty9d31N5CumDKta', '超级管理员', 1);
 
 -- 演示商户管理员
 INSERT INTO `user` (tenant_id, username, password_hash, real_name, status)
-VALUES (1, 'admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '商户管理员', 1);
+VALUES (1, 'admin', '$2a$10$.BMHqZAmVBLSQIkKQ9iHYOXK/Seg2WnbvmZCgDty9d31N5CumDKta', '商户管理员', 1);
 
 -- 默认权限
 INSERT INTO permission (parent_id, name, code, type) VALUES
