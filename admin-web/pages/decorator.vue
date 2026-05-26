@@ -64,7 +64,7 @@
             @dragover.prevent="onComponentDragOver($event, idx)"
             @drop.stop="onComponentDrop($event, idx)"
           >
-            <component :is="previewRenderer(comp.type)" :props="comp.props" />
+            <component :is="previewRenderer(comp.type)" :props="comp.props" :type="comp.type" />
             <div class="comp-actions">
               <el-icon class="action-del" @click.stop="removeComponent(comp.id)"><Delete /></el-icon>
             </div>
@@ -293,12 +293,25 @@ const publish = async () => {
 }
 
 // ── 预览渲染 ─────────────────────────────────────────
+import BannerPreview from '~/components/decorator/BannerPreview.vue'
+import SectionTitlePreview from '~/components/decorator/SectionTitlePreview.vue'
+import ProductGridPreview from '~/components/decorator/ProductGridPreview.vue'
+import CouponGroupPreview from '~/components/decorator/CouponGroupPreview.vue'
+import DefaultPreview from '~/components/decorator/DefaultPreview.vue'
+
+const previewComponentMap: Record<string, any> = {
+  'banner': BannerPreview,
+  'section-title': SectionTitlePreview,
+  'product-grid': ProductGridPreview,
+  'product-list': ProductGridPreview,
+  'product-recommend': ProductGridPreview,
+  'flash-product': ProductGridPreview,
+  'coupon-group': CouponGroupPreview,
+  'flash-sale': CouponGroupPreview,
+}
+
 const previewRenderer = (type: string) => {
-  const map: Record<string, string> = {
-    'banner': 'BannerPreview', 'section-title': 'SectionTitlePreview',
-    'product-grid': 'ProductGridPreview', 'coupon-group': 'CouponGroupPreview',
-  }
-  return map[type] || 'DefaultPreview'
+  return previewComponentMap[type] || DefaultPreview
 }
 </script>
 
