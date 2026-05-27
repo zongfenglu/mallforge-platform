@@ -81,9 +81,9 @@
         <el-tabs>
           <el-tab-pane label="属性">
             <template v-if="selectedComponent">
-              <div class="prop-title">{{ selectedComponent.type }}</div>
+              <div class="prop-title">{{ getCompLabel(selectedComponent.type) }}</div>
 
-              <!-- 通用属性编辑（根据类型动态渲染） -->
+              <!-- 轮播图 -->
               <template v-if="selectedComponent.type === 'banner'">
                 <el-form label-position="top" size="small">
                   <el-form-item label="高度(px)">
@@ -95,9 +95,54 @@
                   <el-form-item label="间隔(秒)">
                     <el-input-number v-model="selectedComponent.props.interval" :min="1" :max="10" />
                   </el-form-item>
+                  <el-form-item label="图片列表">
+                    <div v-for="(img, i) in selectedComponent.props.images" :key="i" class="img-list-item">
+                      <el-input v-model="img.url" placeholder="图片URL" size="small" />
+                      <el-input v-model="img.link" placeholder="跳转链接" size="small" style="margin-top:4px" />
+                      <el-button size="small" text type="danger" @click="selectedComponent.props.images.splice(i, 1)">删除</el-button>
+                    </div>
+                    <el-button size="small" @click="selectedComponent.props.images.push({ url: '', link: '' })">+ 添加图片</el-button>
+                  </el-form-item>
                 </el-form>
               </template>
 
+              <!-- 搜索栏 -->
+              <template v-else-if="selectedComponent.type === 'search-bar'">
+                <el-form label-position="top" size="small">
+                  <el-form-item label="占位文本">
+                    <el-input v-model="selectedComponent.props.placeholder" />
+                  </el-form-item>
+                </el-form>
+              </template>
+
+              <!-- 公告栏 -->
+              <template v-else-if="selectedComponent.type === 'notice-bar'">
+                <el-form label-position="top" size="small">
+                  <el-form-item label="公告内容">
+                    <el-input v-model="selectedComponent.props.text" type="textarea" :rows="2" />
+                  </el-form-item>
+                </el-form>
+              </template>
+
+              <!-- 导航组 -->
+              <template v-else-if="selectedComponent.type === 'nav-grid'">
+                <el-form label-position="top" size="small">
+                  <el-form-item label="列数">
+                    <el-input-number v-model="selectedComponent.props.cols" :min="3" :max="5" />
+                  </el-form-item>
+                  <el-form-item label="导航项">
+                    <div v-for="(item, i) in selectedComponent.props.items" :key="i" class="img-list-item">
+                      <el-input v-model="item.name" placeholder="名称" size="small" />
+                      <el-input v-model="item.icon" placeholder="图标URL" size="small" style="margin-top:4px" />
+                      <el-input v-model="item.link" placeholder="跳转链接" size="small" style="margin-top:4px" />
+                      <el-button size="small" text type="danger" @click="selectedComponent.props.items.splice(i, 1)">删除</el-button>
+                    </div>
+                    <el-button size="small" @click="selectedComponent.props.items.push({ name: '', icon: '', link: '' })">+ 添加导航</el-button>
+                  </el-form-item>
+                </el-form>
+              </template>
+
+              <!-- 标题栏 -->
               <template v-else-if="selectedComponent.type === 'section-title'">
                 <el-form label-position="top" size="small">
                   <el-form-item label="标题">
@@ -109,6 +154,33 @@
                 </el-form>
               </template>
 
+              <!-- 分割线 -->
+              <template v-else-if="selectedComponent.type === 'divider'">
+                <el-form label-position="top" size="small">
+                  <el-form-item label="高度(px)">
+                    <el-input-number v-model="selectedComponent.props.height" :min="1" :max="50" />
+                  </el-form-item>
+                  <el-form-item label="颜色">
+                    <el-color-picker v-model="selectedComponent.props.color" />
+                  </el-form-item>
+                </el-form>
+              </template>
+
+              <!-- 图文广告 -->
+              <template v-else-if="selectedComponent.type === 'image-ad'">
+                <el-form label-position="top" size="small">
+                  <el-form-item label="广告图片">
+                    <div v-for="(img, i) in selectedComponent.props.images" :key="i" class="img-list-item">
+                      <el-input v-model="img.url" placeholder="图片URL" size="small" />
+                      <el-input v-model="img.link" placeholder="跳转链接" size="small" style="margin-top:4px" />
+                      <el-button size="small" text type="danger" @click="selectedComponent.props.images.splice(i, 1)">删除</el-button>
+                    </div>
+                    <el-button size="small" @click="selectedComponent.props.images.push({ url: '', link: '' })">+ 添加图片</el-button>
+                  </el-form-item>
+                </el-form>
+              </template>
+
+              <!-- 商品网格 -->
               <template v-else-if="selectedComponent.type === 'product-grid'">
                 <el-form label-position="top" size="small">
                   <el-form-item label="列数">
@@ -123,7 +195,71 @@
                 </el-form>
               </template>
 
-              <div v-else class="prop-empty">选择组件后编辑属性</div>
+              <!-- 商品列表 -->
+              <template v-else-if="selectedComponent.type === 'product-list'">
+                <el-form label-position="top" size="small">
+                  <el-form-item label="样式">
+                    <el-radio-group v-model="selectedComponent.props.style">
+                      <el-radio-button label="card">卡片</el-radio-button>
+                      <el-radio-button label="horizontal">横向</el-radio-button>
+                    </el-radio-group>
+                  </el-form-item>
+                  <el-form-item label="显示数量">
+                    <el-input-number v-model="selectedComponent.props.count" :min="2" :max="20" />
+                  </el-form-item>
+                </el-form>
+              </template>
+
+              <!-- 推荐商品 -->
+              <template v-else-if="selectedComponent.type === 'product-recommend'">
+                <el-form label-position="top" size="small">
+                  <el-form-item label="推荐算法">
+                    <el-select v-model="selectedComponent.props.algo">
+                      <el-option label="按销量" value="sales" />
+                      <el-option label="按新品" value="newest" />
+                      <el-option label="按价格" value="price" />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="显示数量">
+                    <el-input-number v-model="selectedComponent.props.count" :min="2" :max="20" />
+                  </el-form-item>
+                </el-form>
+              </template>
+
+              <!-- 秒杀商品 -->
+              <template v-else-if="selectedComponent.type === 'flash-product'">
+                <el-form label-position="top" size="small">
+                  <el-form-item label="显示倒计时">
+                    <el-switch v-model="selectedComponent.props.showCountdown" />
+                  </el-form-item>
+                </el-form>
+              </template>
+
+              <!-- 优惠券 -->
+              <template v-else-if="selectedComponent.type === 'coupon-group'">
+                <el-form label-position="top" size="small">
+                  <el-form-item label="展示样式">
+                    <el-radio-group v-model="selectedComponent.props.style">
+                      <el-radio-button label="slide">横向滑动</el-radio-button>
+                      <el-radio-button label="list">列表</el-radio-button>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-form>
+              </template>
+
+              <!-- 限时抢购 -->
+              <template v-else-if="selectedComponent.type === 'flash-sale'">
+                <el-form label-position="top" size="small">
+                  <el-form-item label="展示样式">
+                    <el-radio-group v-model="selectedComponent.props.style">
+                      <el-radio-button label="banner">横幅</el-radio-button>
+                      <el-radio-button label="list">列表</el-radio-button>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-form>
+              </template>
+
+              <div v-else class="prop-empty">该组件暂无可编辑属性</div>
             </template>
             <div v-else class="prop-empty">点击预览区组件进行编辑</div>
           </el-tab-pane>
@@ -185,6 +321,7 @@ const componentGroups = [
       { type: 'nav-grid',      label: '导航组',  icon: 'Grid',          defaultProps: { cols: 5, items: [] } },
       { type: 'section-title', label: '标题栏',  icon: 'Tickets',       defaultProps: { title: '精品推荐', showMore: true } },
       { type: 'divider',       label: '分割线',  icon: 'Minus',         defaultProps: { height: 12, color: '#F5F5F5' } },
+      { type: 'image-ad',      label: '图文广告', icon: 'Picture',       defaultProps: { images: [] } },
     ],
   },
   {
@@ -292,16 +429,44 @@ const publish = async () => {
   ElMessage.success('已发布上线')
 }
 
+// ── 加载已有页面 ────────────────────────────────────
+const loadPage = async () => {
+  if (!pageId.value) return
+  try {
+    const res: any = await ($http as any).get(`/api/v1/pages/${pageId.value}`)
+    const page = res.data
+    if (!page) return
+    pageName.value = page.name || '新页面'
+    if (page.pageJson) {
+      const data = typeof page.pageJson === 'string' ? JSON.parse(page.pageJson) : page.pageJson
+      pageBackground.value = data.background || '#F5F5F5'
+      components.value = (data.components || []).map((c: any, i: number) => ({ ...c, order: i }))
+    }
+  } catch (_) {}
+}
+
+onMounted(loadPage)
+
 // ── 预览渲染 ─────────────────────────────────────────
 import BannerPreview from '~/components/decorator/BannerPreview.vue'
 import SectionTitlePreview from '~/components/decorator/SectionTitlePreview.vue'
 import ProductGridPreview from '~/components/decorator/ProductGridPreview.vue'
 import CouponGroupPreview from '~/components/decorator/CouponGroupPreview.vue'
+import SearchBarPreview from '~/components/decorator/SearchBarPreview.vue'
+import NoticeBarPreview from '~/components/decorator/NoticeBarPreview.vue'
+import NavGridPreview from '~/components/decorator/NavGridPreview.vue'
+import DividerPreview from '~/components/decorator/DividerPreview.vue'
+import ImageAdPreview from '~/components/decorator/ImageAdPreview.vue'
 import DefaultPreview from '~/components/decorator/DefaultPreview.vue'
 
 const previewComponentMap: Record<string, any> = {
   'banner': BannerPreview,
+  'search-bar': SearchBarPreview,
+  'notice-bar': NoticeBarPreview,
+  'nav-grid': NavGridPreview,
   'section-title': SectionTitlePreview,
+  'divider': DividerPreview,
+  'image-ad': ImageAdPreview,
   'product-grid': ProductGridPreview,
   'product-list': ProductGridPreview,
   'product-recommend': ProductGridPreview,
@@ -410,4 +575,11 @@ const previewRenderer = (type: string) => {
 .layer-drag { color: #9CA3AF; cursor: grab; }
 .layer-del  { color: #9CA3AF; margin-left: auto; }
 .layer-del:hover { color: var(--mf-danger); }
+
+/* ── 图片列表编辑 ── */
+.img-list-item {
+  padding: 8px; margin-bottom: 6px;
+  background: #F9FAFB; border-radius: 6px;
+  border: 1px solid #E5E7EB;
+}
 </style>

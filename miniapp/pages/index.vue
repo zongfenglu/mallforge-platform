@@ -17,6 +17,8 @@
         <DividerRenderer     v-if="comp.type === 'divider'"        :props="comp.props" />
         <ImageAdRenderer     v-if="comp.type === 'image-ad'"       :props="comp.props" />
         <ProductGridRenderer  v-if="comp.type === 'product-grid'"  :props="comp.props" />
+        <ProductGridRenderer  v-if="comp.type === 'product-recommend'" :props="comp.props" />
+        <ProductGridRenderer  v-if="comp.type === 'flash-product'" :props="comp.props" />
         <ProductListRenderer  v-if="comp.type === 'product-list'"  :props="comp.props" />
         <CouponGroupRenderer  v-if="comp.type === 'coupon-group'"  :props="comp.props" />
         <FlashSaleRenderer    v-if="comp.type === 'flash-sale'"    :props="comp.props" />
