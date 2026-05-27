@@ -18,15 +18,13 @@ mybatis-plus:
 mall:
   payment:
     aes-key: ${MALL_PAYMENT_AES_KEY:mallforge-payment-aes-key-16byte}
+  jwt:
+    secret: ${MALL_JWT_SECRET:mallforge-super-secret-key-must-be-32-chars-minimum}
+    expiration: 86400
+    refresh-expiration: 604800
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
-
-mall:
-  jwt:
-    secret: ${MALL_JWT_SECRET:mallforge-super-secret-key-must-be-32-chars-minimum}
-    expiration: 86400
-    refresh-expiration: 604800
